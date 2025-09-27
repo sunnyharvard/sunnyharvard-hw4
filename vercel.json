@@ -1,6 +1,6 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "routes": [
-    { "src": "^/county_data$", "dest": "/api/county_data.py" }
+  "rewrites": [
+    { "source": "/county_data", "destination": "/api/county_data" }
   ]
 }
