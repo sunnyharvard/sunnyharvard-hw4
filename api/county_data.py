@@ -10,13 +10,12 @@
 #
 # Returns: JSON array of rows in the same schema as county_health_rankings
 
-import json
-import os
-import re
-import sqlite3
+import json, os, re, sqlite3
 from typing import List, Dict, Any
 from http import HTTPStatus
-from flask import Request, Response
+from flask import Flask, request, Response
+
+app = Flask(__name__)  # <-- expose WSGI app
 
 # --- Allowed measures (exact strings) ---
 ALLOWED_MEASURES = {
@@ -35,8 +34,6 @@ ALLOWED_MEASURES = {
 }
 
 ZIP_RE = re.compile(r"^\d{5}$")
-
-# Location of the SQLite database (bundled read-only with the deployment)
 DB_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data.db")
 
 def _bad_request(msg: str) -> Response:
@@ -67,15 +64,14 @@ def _method_not_allowed() -> Response:
         mimetype="application/json",
     )
 
-def _load_json(request: Request) -> Dict[str, Any]:
-    if request.mimetype != "application/json":
-        # Still try to parse, but enforce JSON header per spec
+def _load_json(req) -> Dict[str, Any]:
+    if req.mimetype != "application/json":
         try:
-            data = request.get_json(force=True, silent=False)
+            data = req.get_json(force=True, silent=False)
         except Exception:
             return {}
         return data or {}
-    return request.get_json(force=True, silent=True) or {}
+    return req.get_json(force=True, silent=True) or {}
 
 def _rows_to_dicts(cursor, rows):
     # Preserve the DB’s exact column names (capitalized)
@@ -132,7 +128,7 @@ def _query(zip_code: str, measure_name: str):
 
 
 # Vercel will call this function.
-def handler(request: Request) -> Response:
+def handler(request) -> Response:
     if request.method != "POST":
         return _method_not_allowed()
 
@@ -171,3 +167,40 @@ def handler(request: Request) -> Response:
         status=HTTPStatus.OK,
         mimetype="application/json",
     )
+
+@app.route("/", methods=["POST"])
+def county_data_route():
+    body = request.get_json(force=True, silent=True) or {}
+
+    if body.get("coffee") == "teapot":
+        return Response(json.dumps({"error": None, "result": "🫖"}), status=418, mimetype="application/json")
+
+    zip_code = body.get("zip")
+    measure_name = body.get("measure_name")
+
+    if not zip_code or not measure_name:
+        return Response(json.dumps({"error": "Both 'zip' and 'measure_name' are required."}),
+                        status=HTTPStatus.BAD_REQUEST, mimetype="application/json")
+
+    if not ZIP_RE.match(str(zip_code)):
+        return Response(json.dumps({"error": "Invalid 'zip' (must be a 5-digit ZIP code)."}),
+                        status=HTTPStatus.BAD_REQUEST, mimetype="application/json")
+
+    if measure_name not in ALLOWED_MEASURES:
+        return Response(json.dumps({"error": "Invalid 'measure_name' value."}),
+                        status=HTTPStatus.BAD_REQUEST, mimetype="application/json")
+
+    try:
+        rows = _query(zip_code, measure_name)
+    except sqlite3.Error as e:
+        if os.getenv("DEBUG") == "1":
+            return Response(json.dumps({"error": f"SQLite error: {e!s}"}),
+                            status=HTTPStatus.BAD_REQUEST, mimetype="application/json")
+        return Response(json.dumps({"error": "Database error while querying inputs provided."}),
+                        status=HTTPStatus.BAD_REQUEST, mimetype="application/json")
+
+    if not rows:
+        return Response(json.dumps({"error": "No data for given zip/measure_name."}),
+                        status=HTTPStatus.NOT_FOUND, mimetype="application/json")
+
+    return Response(json.dumps(rows), status=HTTPStatus.OK, mimetype="application/json")
