@@ -1,8 +1,11 @@
 # HW4 — API Prototype (county_data)
 
-Deployed on Vercel. Serverless Python function + SQLite (read-only).
+Deployed on **Render**. Flask app + SQLite database (read-only).
 
-## Endpoint
+## Live Endpoint
+
+- **Base URL:**  
+  [`https://sunnyharvard-hw4.onrender.com`](https://sunnyharvard-hw4.onrender.com)
 
 - **POST** `/county_data`  
   Content-Type: `application/json`
@@ -32,11 +35,24 @@ Deployed on Vercel. Serverless Python function + SQLite (read-only).
 
 - **400**: missing/invalid inputs
 - **404**: valid inputs but no matching data
-- **405**: non-POST
+- **405**: wrong method (GET, etc.)
+
+---
 
 ## Example cURL
 
 ```bash
+# Happy path
 curl -s -H 'content-type: application/json' \
   -d '{"zip":"02138","measure_name":"Adult obesity"}' \
-  https://YOUR-DEPLOYMENT.vercel.app/county_data | jq
+  https://sunnyharvard-hw4.onrender.com/county_data | jq
+
+# Teapot
+curl -s -H 'content-type: application/json' \
+  -d '{"zip":"02138","measure_name":"Adult obesity","coffee":"teapot"}' \
+  https://sunnyharvard-hw4.onrender.com/county_data
+
+# Bad request (missing keys)
+curl -s -H 'content-type: application/json' \
+  -d '{}' \
+  https://sunnyharvard-hw4.onrender.com/county_data

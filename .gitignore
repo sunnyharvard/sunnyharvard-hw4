@@ -15,3 +15,10 @@ venv/
 # Vercel / build
 .vercel/
 .next/
+
+# Render / build
+.render/
+
+# IDE / editor
+.vscode/
+.idea/
