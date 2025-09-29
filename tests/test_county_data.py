@@ -15,7 +15,7 @@ if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
 # If set, hit the deployed service over HTTP (integration mode)
-RENDER_BASE_URL = os.getenv("RENDER_BASE_URL")  # e.g. https://sunnyharvard-hw4.onrender.com
+RENDER_BASE_URL = os.getenv("https://sunnyharvard-hw4.onrender.com")
 
 
 # -------------------- HTTP helpers (work for local or remote) --------------------

@@ -1,4 +1,4 @@
-# pytest tests for csv_to_sqlite.py
+# pytest tests for csv_to_sqlite.py, by Sunny Liu and ChatGPT-5
 import csv
 import os
 import sqlite3
@@ -7,11 +7,6 @@ import sys
 from pathlib import Path
 import pytest
 
-
-# Resolve the script path assuming repo layout:
-#   project_root/
-#     csv_to_sqlite.py
-#     tests/test_csv_to_sqlite.py
 SCRIPT_PATH = Path(__file__).resolve().parents[1] / "csv_to_sqlite.py"
 
 
