@@ -55,7 +55,7 @@ def is_valid_zip(zip_code):
 
 
 def fetch_data(zip_code, measure_name):
-    """Fetch county data from database for a given ZIP and measure."""
+    """Fetch county data from database for a given ZIP and measure, with ordered fields."""
     conn = get_db_connection()
     if not conn:
         return None
@@ -75,11 +75,33 @@ def fetch_data(zip_code, measure_name):
         """
         cursor = conn.execute(query, (zip_code, measure_name))
         rows = cursor.fetchall()
-        return [dict(row) for row in rows]
+
+        # Build each row in the specific key order
+        results = []
+        for row in rows:
+            results.append({
+                "confidence_interval_lower_bound": row["Confidence_Interval_Lower_Bound"],
+                "confidence_interval_upper_bound": row["Confidence_Interval_Upper_Bound"],
+                "county": row["County"],
+                "county_code": row["County_code"],
+                "data_release_year": row["Data_Release_Year"],
+                "denominator": row["Denominator"],
+                "fipscode": row["fipscode"],
+                "measure_id": row["Measure_id"],
+                "measure_name": row["Measure_name"],
+                "numerator": row["Numerator"],
+                "raw_value": row["Raw_value"],
+                "state": row["State"],
+                "state_code": row["State_code"],
+                "year_span": row["Year_span"]
+            })
+        return results
+
     except Exception:
         return None
     finally:
         conn.close()
+
 
 
 @app.route("/", methods=["GET"])

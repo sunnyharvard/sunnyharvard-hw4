@@ -5,7 +5,8 @@ Deployed on **Render**. Flask app + SQLite database (read-only).
 ## Live Endpoint
 
 - **Base URL:**  
-  [`https://sunnyharvard-hw4.onrender.com`](https://sunnyharvard-hw4.onrender.com)
+  [`https://sunnyharvard-hw4.onrender.com`](https://sunnyharvard-hw4.onrender.com)  
+  Note: Please click on the link and wait for the application to wake up before sending requests
 
 - **POST** `/county_data`  
   Content-Type: `application/json`
