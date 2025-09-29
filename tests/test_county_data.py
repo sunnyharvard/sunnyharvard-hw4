@@ -138,12 +138,13 @@ def test_county_data_success_200(client):
     assert isinstance(body, list) and len(body) >= 1
     row = body[0]
     for k in [
-        "State", "County", "State_code", "County_code", "Year_span",
-        "Measure_name", "Measure_id", "Numerator", "Denominator",
-        "Raw_value", "Confidence_Interval_Lower_Bound",
-        "Confidence_Interval_Upper_Bound", "Data_Release_Year", "fipscode",
+        "state", "county", "state_code", "county_code", "year_span",
+        "measure_name", "measure_id", "numerator", "denominator",
+        "raw_value", "confidence_interval_lower_bound",
+        "confidence_interval_upper_bound", "data_release_year", "fipscode",
     ]:
         assert k in row
+
 
 def test_teapot_418(client):
     status, body = _http_post(client, "/county_data",
