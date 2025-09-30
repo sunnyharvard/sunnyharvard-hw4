@@ -12,10 +12,6 @@ venv/
 # macOS
 .DS_Store
 
-# Vercel / build
-.vercel/
-.next/
-
 # Render / build
 .render/
 
